@@ -1,5 +1,9 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+# Improv-Slide-Show
+
+This application is used to help people get comfortable being uncomfortable on stage. The way it works: Once you start a "presentation" a random image will be displayed on the screen and an animated timer will begin on the bottom on the screen for 30 seconds. ASAP, start a speech/presentation based on the picture you see... whatever you want. After the 30 seconds is up, there will be a new picture display. Tie your previous points to the next slide and make it as relevant as possible. Lastly, there will a third image where you can tie everything together.
+
 ## Available Scripts
 
 In the project directory, you can run:
