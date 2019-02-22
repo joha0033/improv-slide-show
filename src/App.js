@@ -9,8 +9,7 @@ import {
   FaChevronCircleLeft,
   FaCircle
 } from 'react-icons/fa'
-const SLIDE_DURATION = 3000
-const TIME_DURATION = 3000
+const SLIDE_DURATION = 30000
 
 function Slide({
   isCurrent,
@@ -34,16 +33,8 @@ function Slide({
       tabIndex="-1"
       className="Slide"
       style={{backgroundImage:`url(${slide.hdurl})`}}
-    >
-      <div className="SlideContent">
-        <h2 id={id} className="Title">
-          {slide.title}
-        </h2>
-        <div className="Explanation">
-          {children}
-        </div>
-      </div>
-    </li>
+    />
+    
    
   )
 }
@@ -253,7 +244,7 @@ function App() {
 
             <ProgressBar 
               key={state.currentIndex + state.isPlaying}
-              time={TIME_DURATION}
+              time={SLIDE_DURATION}
               animate={state.isPlaying}
             />
 
