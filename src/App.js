@@ -9,9 +9,9 @@ import {
   FaChevronCircleLeft,
   FaCircle
 } from 'react-icons/fa'
-const SLIDE_DURATION = 30000
+export const SLIDE_DURATION = 2000
 
-function Slide({
+export function Slide({
   isCurrent,
   takeFocus,
   slide,
@@ -32,44 +32,44 @@ function Slide({
       aria-hidden={!isCurrent}
       tabIndex="-1"
       className="Slide"
-      style={{backgroundImage:`url(${slide.hdurl})`}}
-    />
-    
+      style={{backgroundImage:`url(http://${slide.url})`}}
+    >
+    </li>
    
   )
 }
-function Slides(props){
+export function Slides(props){
   return (
     <ul className='Slides' {...props} />
   )
 }
 
-function Carousel(props){
+export function Carousel(props){
   return (
     <section className='Carousel' {...props} />
   )
 }
 
-function Controls(props) {
+export function Controls(props) {
   return <div className='Controls' {...props}/>
 }
 
-function SlideNav(props) {
+export function SlideNav(props) {
   return <div className='SlideNav' {...props}/>
 }
 
-function SlideNavItem(props) {
+export function SlideNavItem(props) {
   const { isCurrent } = props
   return isCurrent
     ? <button className='SlideNavItemOn' {...props}/>
     : <button className='SlideNavItemOff' {...props}/>
 }
 
-function IconButton(props) {
+export function IconButton(props) {
   return <button className='IconButton' {...props}/>
 }
 
-function SpacerGif({width}){
+export function SpacerGif({width}){
   return (
     <div
       style={{display:'inline-block', width}}
@@ -77,7 +77,7 @@ function SpacerGif({width}){
   )
 }
 
-function ProgressBar({animate, time}) {
+export function ProgressBar({animate, time}) {
   let progress = useProgress(animate, time)
 
   return (
@@ -89,7 +89,7 @@ function ProgressBar({animate, time}) {
   </div>)
 }
 
-let useProgress = (animate, time) => {
+export const useProgress = (animate, time) => {
   let [ progress, setProgress ] = useState(0)
 
   useEffect(( ) => {
@@ -108,12 +108,13 @@ let useProgress = (animate, time) => {
           return () => cancelAnimationFrame(rafId)
       }
   }, [time, animate])
+  
   return animate 
       ? Math.min(progress/time, time)
       : 0
 }
 
-function App() {
+export function App() {
   let [state, dispatch] = useReducer((state, action) => {
     switch (action.type) {
       case 'PROGRESS':
@@ -144,13 +145,36 @@ function App() {
         takeFocus: true,
         currentIndex: action.index
       }
+      case 'FETCHING': return {
+        ...state,
+        loading: true,
+      }
+      case 'FETCH_SUCCESS': return {
+        ...state,
+        loading: false,
+        data: action.data
+      }
       default: return state
     }
   }, {
     currentIndex: 0,
-    isPlaying: false,
+    slides: ['empty'],
+    loading: true,
+    isPlaying: true,
     takeFocus: false
   })
+
+  useEffect(() => {
+    dispatch({type: 'FETCHING'})
+    fetch(`http://localhost:3000/images/array_of/3/`)
+      .then((res) => {
+        return res.json()
+      })
+      .then((data) => {
+        console.log(data, 'data in useEffect')
+        return dispatch({type: 'FETCH_SUCCESS', data: data.images})
+      })
+  }, [])
 
   useEffect(() => {
     if(state.isPlaying){
@@ -163,22 +187,31 @@ function App() {
     return (
       <div className="App">
         <header className="App-header">
+          {
+            state.loading
+            ? <h1>Loading</h1>
+            : console.log(state.data, 'after fetch?!')
+          }
           <Carousel>
             <Slides>
-              {
-                slides.map((slide, index) => {
+              { 
+                state.loading
+                ? <h1>Loading</h1>
+                : (state.data.map((slide, index) => {
+                  console.log(slide, 'slide in map1!');
+                  
                   return (
                     <Slide 
                       isCurrent={index===state.currentIndex}
                       key={index}
                       slide={slide}
                       takeFocus={state.takeFocus}
-                      children={slide.explanation}
+                      // children={slide.explanation}
                     />
                   )
-                })
+                }))
+                
               }
-            
             </Slides>
             <SlideNav>
               {

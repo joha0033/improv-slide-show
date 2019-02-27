@@ -5,12 +5,18 @@
 ul, h2 {
   padding:0; 
   margin: 0;
+  align-items: center;
 }
 
 .Slide {
   padding: 5vw;
+  
   height: 100vmax;
-  color: white;
+  width: 100vmax;
+  background-color: black;
+  background-size:     contain;                
+  background-repeat:   no-repeat;
+  background-position: top center;
 }
 
 .SlideContent{
@@ -29,23 +35,23 @@ ul, h2 {
   position: absolute;
   display: flex;
   padding: 5vw;
-  right: 5vw;
-  bottom: 0;
+  right: 2vw;
+  top: 0;
 }
 
 .SlideNav {
   position: absolute;
   display: flex;
   padding: 5vw;
-  left: 5vw;
-  bottom: 0;
+  left: 2vw;
+  top: 0;
 }
 
 .IconButton {
   background:none;
   border: none;
   opacity: .9;
-  font-size: 2rem;
+  font-size: 1rem;
   color: rgb(199, 184, 184);
 }
 
@@ -53,7 +59,7 @@ ul, h2 {
   background:none;
   border: none;
   opacity: .6;
-  font-size: 2rem;
+  font-size: 1rem;
   color: rgb(199, 184, 184);
 }
 
