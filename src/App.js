@@ -9,6 +9,13 @@ import {
   FaChevronCircleLeft,
   FaCircle
 } from 'react-icons/fa'
+
+navigator.mediaDevices.getUserMedia({ audio: true })
+  .then(stream => {
+    const mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.start();
+  });
+
 export const SLIDE_DURATION = 30000
 
 export function Slide({
@@ -33,7 +40,7 @@ export function Slide({
       aria-hidden={!isCurrent}
       tabIndex="-1"
       className="Slide"
-      style={{backgroundImage:`url(http://${slide.url})`}}
+      style={{backgroundImage:`url(${slide.url})`}}
     >
     </li>
    
