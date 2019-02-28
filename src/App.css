@@ -55,6 +55,30 @@ ul, h2 {
   color: rgb(199, 184, 184);
 }
 
+.IconButtonLarge{
+  position: absolute;
+  background:none;
+  border: none;
+  opacity: .9;
+  font-size: 10rem;
+  color: rgb(199, 184, 184);
+  right: 240%;
+  top: 20vw;
+}
+
+.PlayAgain{
+  align-items: center;
+}
+
+.Loading{
+  background:none;
+  align-items: center;
+  opacity: .9;
+  font-size: 8rem;
+  color: rgb(199, 184, 184);
+  margin-left: 2vw;
+}
+
 .SlideNavItemOff {
   background:none;
   border: none;

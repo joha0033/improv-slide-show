@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useReducer, useRef} from 'react';
 import './App.css';
-import {DATA as slides} from './data'
+// import {DATA as slides} from './data'
 
 import {
   FaPlay,
@@ -9,7 +9,7 @@ import {
   FaChevronCircleLeft,
   FaCircle
 } from 'react-icons/fa'
-export const SLIDE_DURATION = 2000
+export const SLIDE_DURATION = 30000
 
 export function Slide({
   isCurrent,
@@ -19,8 +19,11 @@ export function Slide({
   title,
   children
 }){
+  // what the hell did this do?? wtf
   let ref = useRef()
   useEffect(() => {
+    console.log(takeFocus, 'takeFocus... ?');
+    
     if(isCurrent && takeFocus){
       ref.current.focus()
     }
@@ -66,7 +69,10 @@ export function SlideNavItem(props) {
 }
 
 export function IconButton(props) {
-  return <button className='IconButton' {...props}/>
+  console.log(props['aria-label']);
+  return props['aria-label'] === 'Play'
+    ? <button className='IconButtonLarge' {...props}/>
+    : <button className='IconButton' {...props}/>
 }
 
 export function SpacerGif({width}){
@@ -77,9 +83,9 @@ export function SpacerGif({width}){
   )
 }
 
-export function ProgressBar({animate, time}) {
-  let progress = useProgress(animate, time)
-
+export function ProgressBar({animate, time, lastSlide}) {
+  let progress = useProgress(animate, time, lastSlide)
+  
   return (
   <div className='ProgressBar'>
     <div 
@@ -91,7 +97,7 @@ export function ProgressBar({animate, time}) {
 
 export const useProgress = (animate, time) => {
   let [ progress, setProgress ] = useState(0)
-
+  
   useEffect(( ) => {
       if(animate){
           let rafId = null
@@ -99,6 +105,7 @@ export const useProgress = (animate, time) => {
           let step = timestamp => {
               if(!start) start = timestamp
               let progress = timestamp - start
+              
               setProgress(progress)
               if(progress < time) {
                   rafId = requestAnimationFrame(step)
@@ -114,6 +121,12 @@ export const useProgress = (animate, time) => {
       : 0
 }
 
+/**
+ * HOW DO I STOP THE SHOW??? 
+ * slides.length-1===state.currentIndex
+ * BUT AFTER PROGRESS BAR IS FINISHED!
+ */
+
 export function App() {
   let [state, dispatch] = useReducer((state, action) => {
     switch (action.type) {
@@ -122,13 +135,13 @@ export function App() {
         ...state,
         isPlaying: action.type === 'PROGRESS',
         takeFocus: false,
-        currentIndex: (state.currentIndex + 1) % slides.length
+        currentIndex: (state.currentIndex + 1) % state.slides.length
       }
       case 'PREV': return {
         ...state,
         isPlaying: false,
         takeFocus: false,
-        currentIndex: (state.currentIndex - 1 + slides.length) % slides.length
+        currentIndex: (state.currentIndex - 1 + state.slides.length) % state.slides.length
       }
       case 'PLAY': return {
         ...state,
@@ -145,14 +158,22 @@ export function App() {
         takeFocus: true,
         currentIndex: action.index
       }
-      case 'FETCHING': return {
-        ...state,
-        loading: true,
-      }
       case 'FETCH_SUCCESS': return {
         ...state,
         loading: false,
-        data: action.data
+        slides: action.slides
+      }
+      case 'RESTART': return {
+        ...state,
+        start: !state.start,
+        loading: true,
+        slides: console.log('a new start')
+      }
+      case 'FINISHED': return {
+        ...state,
+        isPlaying: false,
+        loading: true,
+        slides: console.log('insert finishing slide??')
       }
       default: return state
     }
@@ -160,21 +181,31 @@ export function App() {
     currentIndex: 0,
     slides: ['empty'],
     loading: true,
-    isPlaying: true,
-    takeFocus: false
+    isPlaying: false,
+    takeFocus: false,
+    start: false
   })
 
   useEffect(() => {
-    dispatch({type: 'FETCHING'})
+    if(!state.loading && state.currentIndex===state.slides.length-1){
+      console.log('STOP!!');
+      setTimeout(() => {
+        dispatch({type: 'FINISHED'})
+      }, SLIDE_DURATION - 50)
+    }
+  }, [state.currentIndex])
+
+  useEffect(() => {
     fetch(`http://localhost:3000/images/array_of/3/`)
       .then((res) => {
         return res.json()
       })
       .then((data) => {
-        console.log(data, 'data in useEffect')
-        return dispatch({type: 'FETCH_SUCCESS', data: data.images})
+        console.log(data);
+        dispatch({type: 'FETCH_SUCCESS', slides: data.images})
+        return  data
       })
-  }, [])
+  }, [state.restart])
 
   useEffect(() => {
     if(state.isPlaying){
@@ -184,38 +215,35 @@ export function App() {
       return () => {clearTimeout(timeout)}
     }
   }, [state.currentIndex, state.isPlaying])
+  console.log(state, 'STATE!');
+  
     return (
-      <div className="App">
+      state.loading
+        ? (<div className={'PlayAgain'}>
+            <h1 className={'Loading'}>Pat your self on the back and refresh for another round!</h1>
+          </div>
+        ) // some kind of dynamic component... ? start, loading, finished... 
+        : (<div className="App">
         <header className="App-header">
-          {
-            state.loading
-            ? <h1>Loading</h1>
-            : console.log(state.data, 'after fetch?!')
-          }
           <Carousel>
             <Slides>
               { 
-                state.loading
-                ? <h1>Loading</h1>
-                : (state.data.map((slide, index) => {
-                  console.log(slide, 'slide in map1!');
-                  
+                state.slides.map((slide, index) => {
                   return (
                     <Slide 
                       isCurrent={index===state.currentIndex}
                       key={index}
                       slide={slide}
                       takeFocus={state.takeFocus}
-                      // children={slide.explanation}
                     />
                   )
-                }))
+                })
                 
               }
             </Slides>
             <SlideNav>
               {
-                slides.map((slide, index) => {
+                state.slides.map((slide, index) => {
                   return index === state.currentIndex
                     ? (<SlideNavItem
                       key={index}
@@ -249,6 +277,7 @@ export function App() {
                   )
                   : (
                     <IconButton
+
                       aria-label="Play"
                       onClick={() => {
                         dispatch({type: 'PLAY'})
@@ -274,17 +303,18 @@ export function App() {
                 children={<FaChevronCircleRight />}
               />
             </Controls>
-
+          
             <ProgressBar 
               key={state.currentIndex + state.isPlaying}
               time={SLIDE_DURATION}
               animate={state.isPlaying}
+              lastSlide={state.currentIndex === state.slides.length-1}
             />
 
           </Carousel>
         </header>
       </div>
-    );
+    ))
   }
 
 
