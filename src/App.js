@@ -19,11 +19,9 @@ export function Slide({
   title,
   children
 }){
-  // what the hell did this do?? wtf
+  // what the hell did this do?? forgot...
   let ref = useRef()
   useEffect(() => {
-    console.log(takeFocus, 'takeFocus... ?');
-    
     if(isCurrent && takeFocus){
       ref.current.focus()
     }
@@ -69,7 +67,6 @@ export function SlideNavItem(props) {
 }
 
 export function IconButton(props) {
-  console.log(props['aria-label']);
   return props['aria-label'] === 'Play'
     ? <button className='IconButtonLarge' {...props}/>
     : <button className='IconButton' {...props}/>
@@ -188,7 +185,6 @@ export function App() {
 
   useEffect(() => {
     if(!state.loading && state.currentIndex===state.slides.length-1){
-      console.log('STOP!!');
       setTimeout(() => {
         dispatch({type: 'FINISHED'})
       }, SLIDE_DURATION - 50)
@@ -196,12 +192,11 @@ export function App() {
   }, [state.currentIndex])
 
   useEffect(() => {
-    fetch(`http://localhost:3000/images/array_of/3/`)
+    fetch(`https://https://photo-api-2019.herokuapp.com//images/array_of/3/`)
       .then((res) => {
         return res.json()
       })
       .then((data) => {
-        console.log(data);
         dispatch({type: 'FETCH_SUCCESS', slides: data.images})
         return  data
       })
@@ -215,8 +210,7 @@ export function App() {
       return () => {clearTimeout(timeout)}
     }
   }, [state.currentIndex, state.isPlaying])
-  console.log(state, 'STATE!');
-  
+
     return (
       state.loading
         ? (<div className={'PlayAgain'}>
