@@ -21,5 +21,7 @@
         "jest"
     ],
     "rules": {
+        "quotes": [2, "single"],
+        "jsx-quotes": [2, "prefer-single"]
     }
 }

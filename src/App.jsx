@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useReducer, useRef,
+  useState, useEffect, useReducer, useRef, useLayoutEffect,
 } from 'react';
 import './App.css';
 import PropTypes from 'prop-types';
@@ -35,8 +35,8 @@ export function Slide({
     <li
       ref={ref}
       aria-hidden={!isCurrent}
-      tabIndex="-1"
-      className="Slide"
+      tabIndex='-1'
+      className='Slide'
       style={{ backgroundImage: `url(${slide.url})` }}
     />
   );
@@ -52,37 +52,45 @@ Slide.propTypes = {
 
 export function Slides(props) {
   return (
-    <ul className="Slides" {...props} />
+    <ul className='Slides' {...props} />
   );
 }
 
 export function Carousel(props) {
   return (
-    <section className="Carousel" {...props} />
+    <section className='Carousel' {...props} />
   );
 }
 
 export function Controls(props) {
-  return <div className="Controls" {...props} />;
+  return <div className='Controls' {...props} />;
 }
 
 export function SlideNav(props) {
-  return <div className="SlideNav" {...props} />;
+  return <div className='SlideNav' {...props} />;
 }
 
 export function SlideNavItem(props) {
   const { isCurrent } = props;
   return isCurrent
-    ? <button type="button" className="SlideNavItemOn" {...props} />
-    : <button type="button" className="SlideNavItemOff" {...props} />;
+    ? <button type='button' className='SlideNavItemOn' {...props} />
+    : <button type='button' className='SlideNavItemOff' {...props} />;
 }
+
+SlideNavItem.propTypes = {
+  isCurrent: PropTypes.bool.isRequired,
+};
 
 export function IconButton(props) {
   const { name } = props;
   return name === 'Play'
-    ? <button type="button" className="IconButtonLarge" {...props} />
-    : <button type="button" className="IconButton" {...props} />;
+    ? <button type='button' className='IconButtonLarge' {...props} />
+    : <button type='button' className='IconButton' {...props} />;
 }
+
+IconButton.propTypes = {
+  name: PropTypes.string.isRequired,
+};
 
 export function SpacerGif({ width }) {
   return (
@@ -100,7 +108,7 @@ SpacerGif.propTypes = {
 export const useProgress = (animate, time) => {
   const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let rafId = null;
     if (animate) {
       let start = null;
@@ -122,22 +130,27 @@ export const useProgress = (animate, time) => {
     : 0;
 };
 
-export function ProgressBar({ animate, time, lastSlide }) {
-  const progressUsed = useProgress(animate, time, lastSlide);
+export function ProgressBar({ animate, time }) {
+  const progressUsed = useProgress(animate, time);
 
   return (
-    <div className="ProgressBar">
+    <div className='ProgressBar'>
       <div
         style={{ width: `${progressUsed * 100}%` }}
       />
-    </div>);
+    </div>
+  );
 }
 
 ProgressBar.propTypes = {
   animate: PropTypes.bool.isRequired,
   time: PropTypes.number.isRequired,
-  lastSlide: PropTypes.bool.isRequired,
 };
+
+// eslint-disable-next-line react/prop-types
+const Loading = ({ slides }) => (slides
+  ? (<h1 className='Loading'>Loading...</h1>)
+  : (<h1 className='Loading'>Thanks for Visiting!</h1>));
 
 export default function App() {
   // eslint-disable-next-line no-shadow
@@ -217,7 +230,7 @@ export default function App() {
     return response;
   };
 
-  useEffect(() => { fetchSlides(); }, [state.restart]);
+  useEffect(() => { setTimeout(() => (fetchSlides()), 1500); }, [state.restart]);
 
   useEffect(() => {
     let timeout;
@@ -232,15 +245,16 @@ export default function App() {
   return (
     state.loading
       ? (
-        <div className="PlayAgain">
-          <h1 className="Loading">Pat your self on the back and refresh for another round!</h1>
+        <div className='PlayAgain'>
+          <Loading
+            slides={state.slides}
+          />
         </div>
-      ) // some kind of dynamic component... ? start, loading, finished...
+      )
       : (
-        <div className="App">
-          <header className="App-header">
+        <div className='App'>
+          <header className='App-header'>
             <Carousel>
-
               <Slides>
                 {
                     state.slides.map((slide, index) => (
@@ -253,7 +267,6 @@ export default function App() {
                     ))
                   }
               </Slides>
-
               <SlideNav>
                 {
                     state.slides.map((slide, index) => (index === state.currentIndex
@@ -281,14 +294,13 @@ export default function App() {
                       )))
                   }
               </SlideNav>
-
               <Controls>
                 {
                     state.isPlaying
                       ? (
                         <IconButton
-                          name="Pause"
-                          aria-label="Pause"
+                          name='Pause'
+                          aria-label='Pause'
                           onClick={() => { dispatch({ type: 'PAUSE' }); }}
                         >
                           <FaPause />
@@ -296,8 +308,8 @@ export default function App() {
                       )
                       : (
                         <IconButton
-                          name="Play"
-                          aria-label="Play"
+                          name='Play'
+                          aria-label='Play'
                           onClick={() => {
                             dispatch({ type: 'PLAY' });
                           }}
@@ -306,18 +318,18 @@ export default function App() {
                         </IconButton>
                       )
                   }
-                <SpacerGif width="10px" />
+                <SpacerGif width='10px' />
                 <IconButton
-                  aria-label="Previous Slide"
+                  aria-label='Previous Slide'
                   onClick={() => {
                     dispatch({ type: 'PREV' });
                   }}
                 >
                   <FaChevronCircleLeft />
                 </IconButton>
-                <SpacerGif width="10px" />
+                <SpacerGif width='10px' />
                 <IconButton
-                  aria-label="Next Slide"
+                  aria-label='Next Slide'
                   onClick={() => {
                     dispatch({ type: 'NEXT' });
                   }}
@@ -325,19 +337,14 @@ export default function App() {
                   <FaChevronCircleRight />
                 </IconButton>
               </Controls>
-
               <ProgressBar
                 key={state.currentIndex + state.isPlaying}
                 time={SLIDE_DURATION}
                 animate={state.isPlaying}
-                lastSlide={state.currentIndex === state.slides.length - 1}
+                // lastSlide={state.currentIndex === state.slides.length - 1}
               />
-
             </Carousel>
           </header>
         </div>
       ));
 }
-
-
-// export default App;
