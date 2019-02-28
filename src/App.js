@@ -192,7 +192,7 @@ export function App() {
   }, [state.currentIndex])
 
   useEffect(() => {
-    fetch(`https://photo-api-2019.herokuapp.com//images/array_of/3/`)
+    fetch(`https://photo-api-2019.herokuapp.com/images/array_of/3/`)
       .then((res) => {
         return res.json()
       })
